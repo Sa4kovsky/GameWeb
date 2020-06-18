@@ -1,0 +1,139 @@
+﻿@model string[]
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="text-center">
+                <h4>Room - @Model[0]; File - @Model[1];  @Model[2] in a row</h4>
+                <div class="form-group" id="tableGame"> </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container">
+                <div class="row">&nbsp;</div>
+                <div class="row">
+                    <div class="col-2">Room</div>
+                    <div class="col-4"><input type="text" id="room" value="@Model[0]"/></div>
+                </div>
+                <div class="row">&nbsp;</div>
+                <div class="row">
+                    <div class="col-6">
+                        <input type="button" id="joinButton" value="Join  Room" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row">&nbsp;</div>
+                <div class="row">
+                    <div class="col-2">User</div>
+                    <div class="col-4"><input type="text" id="userInput" value="Test"/></div>
+                </div>
+                <div class="row">
+                    <div class="col-2">Message</div>
+                    <div class="col-4"><input type="text" id="messageInput" value="Test"/></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <ul id="messagesList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h5 class="modal-title" id="resultSendEmail"></h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(function () {      
+            $("#tab").remove();
+            var table = $('<table id="tab"/>');
+            var sizePlaingFaild = @Model[1];
+            for (var i = 0; i < sizePlaingFaild; i++) {
+                var row = $('<tr/>');
+                for (var j = 0; j < sizePlaingFaild; j++) {
+                    var cell = $('<td/>');
+                    cell.html('<button type="button" onclick="Message(this);" class="btn btn-primary"  name="' + i + "x" + j + '"}>' +
+                        '<span class="ui-button-text">' + i + "x" + j + '</span></button > ')
+                    row.append(cell);
+                }
+                table.append(row);
+            }
+            table.appendTo('#tableGame');
+            $.ajax({
+                url: '/Home/InitMap',
+                type: 'POST',
+                data: { sizePlaingFaild: sizePlaingFaild }
+            });
+        });
+
+        window.onload = function () {
+             setTimeout(function(){
+                Registration();
+             },1000)
+        };  
+
+        $('#messagesList').on('DOMSubtreeModified', function (e) {
+            $('#messagesList li:last-child').each(function (index, value)
+            {
+                GetDetails(value.textContent);
+            });
+        });
+
+        var bool = true;
+        function GetDetails(coordinates) {
+            var button = $('button[name=' + coordinates + ']')[0];
+            if (bool) {
+                $.ajax({
+                    url: '/Home/Move',
+                    type: 'POST',
+                    data: { player: 0, coordinat: coordinates, sizePlaingFaild:  @Model[1], sizeWin:  @Model[2] },
+                    success: function (result) {
+                        if (result != "") {
+                            $('#resultSendEmail').html(result);
+                            $('#exampleModalCenter').modal('show');
+                        }
+                    }
+                });
+                $("span", button).text("X");
+                button.disabled = true;
+                bool = false;
+            }
+            else {
+                $.ajax({
+                    url: '/Home/Move',
+                    type: 'POST',
+                    data: { player: 1, coordinat: coordinates, sizePlaingFaild:  @Model[1], sizeWin:  @Model[2]},
+                    success: function (result) {
+                        if (result != "") {
+                            $('#resultSendEmail').html(result);
+                            $('#exampleModalCenter').modal('show');
+                        }
+                    }
+                });
+
+                $("span", button).text("0");
+                button.disabled = true;
+                bool = true;
+            }
+        }
+    </script>
+}

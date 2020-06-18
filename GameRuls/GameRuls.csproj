@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\icon\**" />
+    <Content Remove="wwwroot\icon\**" />
+    <EmbeddedResource Remove="wwwroot\icon\**" />
+    <None Remove="wwwroot\icon\**" />
+  </ItemGroup>
+
+</Project>
