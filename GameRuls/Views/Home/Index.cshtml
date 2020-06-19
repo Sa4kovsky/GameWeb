@@ -1,4 +1,4 @@
-﻿@model string[]
+﻿@model List<Room>
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -7,48 +7,21 @@
     <div class="row">
         <div class="col-md-6">
             <div class="text-center">
-                <h4>Room - @Model[0]; File - @Model[1];  @Model[2] in a row</h4>
-                <div class="form-group" id="tableGame"> </div>
+                <div class="row">
+                    <h4>Room -</h4> <h4 id="room">&nbsp @Model[0].Name &nbsp</h4>
+                    <h4>File -</h4> <h4>&nbsp @Model[0].SizePlaingFaild &nbsp</h4>
+                    <h4>In a row -</h4> <h4>&nbsp @Model[0].SizeWin </h4>
+                </div>
             </div>
+            <div class="form-group" id="tableGame"> </div>
         </div>
         <div class="col-md-6">
-            <div class="container">
-                <div class="row">&nbsp;</div>
-                <div class="row">
-                    <div class="col-2">Room</div>
-                    <div class="col-4"><input type="text" id="room" value="@Model[0]"/></div>
-                </div>
-                <div class="row">&nbsp;</div>
-                <div class="row">
-                    <div class="col-6">
-                        <input type="button" id="joinButton" value="Join  Room" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="container">
-                <div class="row">&nbsp;</div>
-                <div class="row">
-                    <div class="col-2">User</div>
-                    <div class="col-4"><input type="text" id="userInput" value="Test"/></div>
-                </div>
-                <div class="row">
-                    <div class="col-2">Message</div>
-                    <div class="col-4"><input type="text" id="messageInput" value="Test"/></div>
-                </div>
-            </div>
-
             <div class="row">
-                <div class="col-6">
-                    <ul id="messagesList"></ul>
-                </div>
+                    <ul id="messagesList"> Move </ul>
             </div>
         </div>
     </div>
 </div>
-
-
-
 
 <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -63,15 +36,26 @@
 
 @section Scripts {
     <script>
+        
+        window.onload = function () {
+             setTimeout(function(){
+                RegistrationGame();
+             },1000)
+        };  
+
+        window.onbeforeunload = function () { 
+            LeaveRoom();
+        }; 
+
         $(function () {      
             $("#tab").remove();
             var table = $('<table id="tab"/>');
-            var sizePlaingFaild = @Model[1];
+            var sizePlaingFaild = @Model[0].SizePlaingFaild;
             for (var i = 0; i < sizePlaingFaild; i++) {
                 var row = $('<tr/>');
                 for (var j = 0; j < sizePlaingFaild; j++) {
                     var cell = $('<td/>');
-                    cell.html('<button type="button" onclick="Message(this);" class="btn btn-primary"  name="' + i + "x" + j + '"}>' +
+                    cell.html('<button type="button" onclick="Message(this.name);" class="btn btn-primary"  name="' + i + "x" + j + '"}>' +
                         '<span class="ui-button-text">' + i + "x" + j + '</span></button > ')
                     row.append(cell);
                 }
@@ -84,12 +68,6 @@
                 data: { sizePlaingFaild: sizePlaingFaild }
             });
         });
-
-        window.onload = function () {
-             setTimeout(function(){
-                Registration();
-             },1000)
-        };  
 
         $('#messagesList').on('DOMSubtreeModified', function (e) {
             $('#messagesList li:last-child').each(function (index, value)
@@ -105,9 +83,10 @@
                 $.ajax({
                     url: '/Home/Move',
                     type: 'POST',
-                    data: { player: 0, coordinat: coordinates, sizePlaingFaild:  @Model[1], sizeWin:  @Model[2] },
+                    data: { player: 0, coordinat: coordinates, sizePlaingFaild:  @Model[0].SizePlaingFaild, sizeWin:  @Model[0].SizeWin},
                     success: function (result) {
                         if (result != "") {
+                            Message(result);
                             $('#resultSendEmail').html(result);
                             $('#exampleModalCenter').modal('show');
                         }
@@ -121,9 +100,10 @@
                 $.ajax({
                     url: '/Home/Move',
                     type: 'POST',
-                    data: { player: 1, coordinat: coordinates, sizePlaingFaild:  @Model[1], sizeWin:  @Model[2]},
+                    data: { player: 1, coordinat: coordinates, sizePlaingFaild: @Model[0].SizePlaingFaild, sizeWin:  @Model[0].SizeWin},
                     success: function (result) {
                         if (result != "") {
+                            Message(result);
                             $('#resultSendEmail').html(result);
                             $('#exampleModalCenter').modal('show');
                         }

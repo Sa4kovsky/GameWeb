@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<Room>
+@{
     ViewData["Title"] = "Game";
 }
 
@@ -6,25 +7,47 @@
     <div class="row">
         <div class="col-md-12">
             <div class="container">
-                @using (Html.BeginForm("Index", "Home", FormMethod.Post))
-                {
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <h4>Room </h4>
-                            <input type="text" class="form-control" name="room" id="room" />
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputSizePlaningFaild">Введите размер поля</label>
-                            <input type="number" min="3" value="3" class="form-control" id="sizePlaingFaild" name="sizePlaingFaild">
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputSizeWin"> Сколько должно быть одинаковых значение подряд для победы</label>
-                            <input type="number" min="3" value="3" class="form-control" id="sizeWin" name="sizeWin">
-                        </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+                        {
+                                <div class="form-group">
+                                    <h4>Room </h4>
+                                    <input type="text" class="form-control" name="room" id="room" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputSizePlaningFaild">
+                                        File
+                                    </label>
+                                    <input type="number" min="3" value="3" class="form-control" id="sizePlaingFaild" name="sizePlaingFaild">
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputSizeWin">In a row</label>
+                                    <input type="number" min="3" value="3" class="form-control" id="sizeWin" name="sizeWin">
+                                </div>
 
-                        <button type="submit" class="btn btn-dark" id="joinButton">Create game</button>
+                                <button type="submit" class="btn btn-dark" id="joinButton">Create game</button>
+                        }
                     </div>
-                }
+                    <div class="col-md-1"></div>
+                    <div class="col-md-7">
+                        <h4>Join Game</h4>
+                        <div style="border:5px">
+                            @foreach (var room in Model)
+                            {
+                                @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+                                {
+                                    <div class="row" style="margin:0px">
+                                        <input name="room" value="@room.Name" style="border:none;" />
+                                        <input name="sizePlaingFaild" value="@room.SizePlaingFaild" style="border:none; width:50px" />
+                                        <input name="sizeWin" value="@room.SizeWin" style="border:none;  width:50px" />
+                                        <button type="submit" class="btn btn-dark" id="joinButton">Join game</button>
+                                    </div>
+                                 }   
+                             }
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

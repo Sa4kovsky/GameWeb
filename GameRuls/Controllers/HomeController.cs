@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using GameRuls.Models;
 using System.Drawing;
 using GameRuls.Assistant;
+using GameRuls.Hubs;
+using GameRuls.Models.Context;
 
 namespace GameRuls.Controllers
 {
@@ -23,14 +25,32 @@ namespace GameRuls.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View("Game");
+            using (Context context = new Context()) 
+            { 
+                return View("Game", context.Rooms.ToList());
+            }
         }
 
         [HttpPost]
         public IActionResult Index(string room, int sizePlaingFaild, int sizeWin)
         {
-            string[] game = new string[] { room, sizePlaingFaild.ToString(), sizeWin.ToString() };
-            return View("Index", game);
+            using (Context context = new Context())
+            {
+                List<Room> rooms = context.Rooms.Where(c => c.Name == room).ToList();
+                if (rooms.Count() == 0)
+                {
+                    rooms.Add(new Room { Name = room, SizePlaingFaild = sizePlaingFaild, SizeWin = sizeWin });
+                    context.Rooms.Add(new Room { Name = room, SizePlaingFaild = sizePlaingFaild, SizeWin = sizeWin });
+                    context.SaveChanges();
+                }
+                else
+                {
+                    rooms = context.Rooms.Where(c => c.Name == room).ToList();
+                    context.Rooms.Remove(rooms[0]);
+                    context.SaveChanges();
+                }
+                return View("Index", rooms);
+            }
         }
 
 
